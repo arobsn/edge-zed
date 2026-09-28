@@ -41,7 +41,8 @@ type Palette = Record<
   | "purple"
   | "grey"
   | "grey_dim"
-  | "comment",
+  | "comment"
+  | "hint",
   string
 >;
 
@@ -53,7 +54,7 @@ interface HighlightStyle {
   font_weight?: number;
 }
 
-const DARK_FG = { fg: "#c5cdd9", grey: "#758094", grey_dim: "#535c6a" };
+const DARK_FG = { fg: "#c5cdd9", grey: "#758094", grey_dim: "#535c6a", hint: "#5e6673" };
 
 const DARK_ACCENTS = {
   bg_red: "#55393d",
@@ -153,6 +154,7 @@ const PALETTES: Record<string, [Appearance, Palette]> = {
       purple: "#b05ccc",
       grey: "#8790a0",
       grey_dim: "#bac3cb",
+      hint: "#adb6c0",
       comment: "#8790a0",
     },
   ],
@@ -188,7 +190,7 @@ function syntax(p: Palette): Record<string, HighlightStyle> {
     // Macros: tree-sitter uses function.special, LSP semantic tokens use function.macro.
     "function.macro": s(p.cyan),
     "function.special": s(p.cyan),
-    hint: s(p.comment),
+    hint: s(p.hint),
     keyword: s(p.purple),
     label: s(p.fg),
     link_text: s(p.red),
