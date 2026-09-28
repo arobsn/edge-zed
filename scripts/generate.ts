@@ -1,8 +1,9 @@
 /**
  * Generate themes/edge.json from the Edge palettes.
  *
- * Palettes and highlight mappings are ported from https://github.com/sainnhe/edge
- * (autoload/edge.vim and colors/edge.vim). Run from anywhere with Node 22.18+:
+ * Palettes come from https://github.com/sainnhe/edge (autoload/edge.vim). Syntax colors follow
+ * https://github.com/sainnhe/edge-vscode, including its comment grey; the UI follows the Vim theme.
+ * Run from anywhere with Node 22.18+:
  *
  *     node scripts/generate.ts
  */
@@ -39,7 +40,8 @@ type Palette = Record<
   | "blue"
   | "purple"
   | "grey"
-  | "grey_dim",
+  | "grey_dim"
+  | "comment",
   string
 >;
 
@@ -85,6 +87,7 @@ const PALETTES: Record<string, [Appearance, Palette]> = {
       bg4: "#414550",
       bg_grey: "#828a98",
       bg_purple: "#493c53",
+      comment: "#7f8490",
     },
   ],
   "Edge Aura": [
@@ -101,6 +104,7 @@ const PALETTES: Record<string, [Appearance, Palette]> = {
       bg4: "#404455",
       bg_grey: "#7e869b",
       bg_purple: "#483b55",
+      comment: "#7e8294",
     },
   ],
   "Edge Neon": [
@@ -117,6 +121,7 @@ const PALETTES: Record<string, [Appearance, Palette]> = {
       bg4: "#3f445b",
       bg_grey: "#7a819d",
       bg_purple: "#483b57",
+      comment: "#7e8294",
     },
   ],
   "Edge Light": [
@@ -148,6 +153,7 @@ const PALETTES: Record<string, [Appearance, Palette]> = {
       purple: "#b05ccc",
       grey: "#8790a0",
       grey_dim: "#bac3cb",
+      comment: "#8790a0",
     },
   ],
 };
@@ -162,56 +168,59 @@ function syntax(p: Palette): Record<string, HighlightStyle> {
 
   const italic = { font_style: "italic" } as const;
   const bold = { font_weight: 700 };
-  // Colors follow Edge's tree-sitter groups (TS* links in colors/edge.vim).
+  // Colors and italics follow edge-vscode's TextMate scopes.
   return {
-    attribute: s(p.yellow),
-    boolean: s(p.green),
-    comment: s(p.grey, italic),
-    "comment.doc": s(p.grey, italic),
+    attribute: s(p.yellow, italic),
+    boolean: s(p.green, italic),
+    comment: s(p.comment),
+    "comment.doc": s(p.comment),
     constant: s(p.red),
-    "constant.builtin": s(p.cyan),
+    "constant.builtin": s(p.green, italic),
     constructor: s(p.blue),
     "diff.minus": s(p.red),
     "diff.plus": s(p.green),
     embedded: s(p.fg),
-    emphasis: s(p.fg, italic),
-    "emphasis.strong": s(p.fg, bold),
+    emphasis: s(p.purple, italic),
+    "emphasis.strong": s(p.yellow, bold),
     enum: s(p.yellow),
     function: s(p.blue),
-    "function.builtin": s(p.blue),
-    hint: s(p.grey_dim),
+    "function.builtin": s(p.cyan),
+    // Macros: tree-sitter uses function.special, LSP semantic tokens use function.macro.
+    "function.macro": s(p.cyan),
+    "function.special": s(p.cyan),
+    hint: s(p.comment),
     keyword: s(p.purple),
-    label: s(p.purple),
-    link_text: s(p.yellow),
-    link_uri: s(p.green),
+    label: s(p.fg),
+    link_text: s(p.red),
+    link_uri: s(p.fg),
     namespace: s(p.yellow),
     number: s(p.green),
     operator: s(p.purple),
-    predictive: s(p.grey, italic),
+    predictive: s(p.comment),
     preproc: s(p.purple),
     primary: s(p.fg),
     property: s(p.cyan),
-    punctuation: s(p.grey),
-    "punctuation.bracket": s(p.grey),
-    "punctuation.delimiter": s(p.grey),
-    "punctuation.list_marker": s(p.yellow),
-    "punctuation.markup": s(p.yellow),
+    punctuation: s(p.fg),
+    "punctuation.bracket": s(p.fg),
+    "punctuation.delimiter": s(p.fg),
+    "punctuation.list_marker": s(p.fg),
+    "punctuation.markup": s(p.blue),
     "punctuation.special": s(p.yellow),
     selector: s(p.red),
-    "selector.pseudo": s(p.purple),
+    "selector.pseudo": s(p.yellow, italic),
     string: s(p.green),
-    "string.escape": s(p.yellow),
-    "string.regex": s(p.yellow),
-    "string.special": s(p.yellow),
-    "string.special.symbol": s(p.red),
+    "string.escape": s(p.cyan),
+    "string.regex": s(p.cyan),
+    "string.special": s(p.cyan),
+    "string.special.symbol": s(p.cyan),
     tag: s(p.red),
-    "text.literal": s(p.green),
-    title: s(p.purple, bold),
+    "text.literal": s(p.fg),
+    title: s(p.red),
     type: s(p.yellow),
     "type.builtin": s(p.yellow),
     variable: s(p.red),
-    "variable.parameter": s(p.red),
-    "variable.special": s(p.cyan),
+    "variable.parameter": s(p.fg),
+    "variable.special": s(p.red, italic),
     variant: s(p.cyan),
   };
 }

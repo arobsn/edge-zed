@@ -19,4 +19,4 @@ Then pick a variant with `theme selector: toggle`. If the theme fails to load, c
 node scripts/generate.ts
 ```
 
-Syntax colors follow Edge's tree-sitter highlight groups with its default options (italic comments only).
+Palettes come from [Edge](https://github.com/sainnhe/edge); syntax and UI mappings follow the official [VS Code port](https://github.com/sainnhe/edge-vscode).
