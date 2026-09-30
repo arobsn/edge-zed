@@ -1,22 +1,35 @@
-# Edge for Zed
+# Edge color theme for Zed
 
-A port of [Edge](https://github.com/sainnhe/edge) by sainnhe to the [Zed](https://zed.dev) editor.
+A port of [Edge](https://github.com/sainnhe/edge) to the [Zed](https://zed.dev) editor.
 
-Variants: **Edge Dark**, **Edge Aura**, **Edge Neon** (dark) and **Edge Light**.
+## Features
 
-## Install
-
-- **Dev extension:** in Zed run `zed: install dev extension` and select this directory.
-- **Manual:** copy `themes/edge.json` into `~/.config/zed/themes/`.
-
-Then pick a variant with `theme selector: toggle`. If the theme fails to load, check `zed: open log`.
+- Vivid colors.
+- Designed to have a soft contrast for eye protection.
+- `Dark`, `Aura`, `Neon`, and `Light` color variants.
+- `Classic`, `Material`, and `Blur` UI style variants.
 
 ## Development
 
-`themes/edge.json` is generated from the Edge palettes. Edit `scripts/generate.ts`, then run it with Node 22.18+ (no build step needed):
+The files in `themes/` are generated from the Edge palettes. Edit `generate.ts`, then run it with Node 22.18+ (no build step needed):
 
 ```sh
-node scripts/generate.ts
+node generate.ts
 ```
 
-Palettes come from [Edge](https://github.com/sainnhe/edge); syntax and UI mappings follow the official [VS Code port](https://github.com/sainnhe/edge-vscode).
+### Loading the theme
+
+- **Dev extension:** in Zed run `zed: install dev extension` and select this directory.
+- **Manual:** copy the files in `themes/` into `~/.config/zed/themes/`.
+
+Then pick a variant with `theme selector: toggle`. If the theme fails to load, check `zed: open log`.
+
+## Credits
+
+- Palettes come from [Edge](https://github.com/sainnhe/edge).
+- Syntax and UI mappings follow the official [VS Code port](https://github.com/sainnhe/edge-vscode).
+- Material and blur styles follow [zed-everforest](https://github.com/albertsko/zed-everforest).
+
+## License
+
+Released under the [MIT](LICENSE).
