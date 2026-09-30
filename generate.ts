@@ -1,13 +1,3 @@
-/**
- * Generate themes/edge.json from the Edge palettes.
- *
- * Palettes come from https://github.com/sainnhe/edge (autoload/edge.vim). Syntax colors follow
- * https://github.com/sainnhe/edge-vscode, including its comment grey; the UI follows the Vim theme.
- * Run from anywhere with Node 22.18+:
- *
- *     node scripts/generate.ts
- */
-
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -160,7 +150,7 @@ const PALETTES: Record<string, [Appearance, Palette]> = {
   ],
 };
 
-const alpha = (color: string, a: string) => color + a;
+const alpha = (color: string, a: string) => color.slice(0, 7) + a;
 
 function syntax(p: Palette): Record<string, HighlightStyle> {
   const s = (color: string, extra: Omit<HighlightStyle, "color"> = {}): HighlightStyle => ({
@@ -170,7 +160,6 @@ function syntax(p: Palette): Record<string, HighlightStyle> {
 
   const italic = { font_style: "italic" } as const;
   const bold = { font_weight: 700 };
-  // Colors and italics follow edge-vscode's TextMate scopes.
   return {
     attribute: s(p.yellow, italic),
     boolean: s(p.green, italic),
@@ -187,7 +176,6 @@ function syntax(p: Palette): Record<string, HighlightStyle> {
     enum: s(p.yellow),
     function: s(p.blue),
     "function.builtin": s(p.cyan),
-    // Macros: tree-sitter uses function.special, LSP semantic tokens use function.macro.
     "function.macro": s(p.cyan),
     "function.special": s(p.cyan),
     hint: s(p.hint),
@@ -227,12 +215,27 @@ function syntax(p: Palette): Record<string, HighlightStyle> {
   };
 }
 
+const STATUS_COLORS: [string, ColorName, ColorName][] = [
+  ["error", "red", "bg_red"],
+  ["warning", "yellow", "bg_yellow"],
+  ["info", "blue", "bg_blue"],
+  ["hint", "purple", "bg_purple"],
+  ["success", "green", "bg_green"],
+  ["created", "green", "bg_green"],
+  ["modified", "blue", "bg_blue"],
+  ["deleted", "red", "bg_red"],
+  ["renamed", "cyan", "bg_blue"],
+  ["conflict", "yellow", "bg_yellow"],
+  ["predictive", "grey", "bg1"],
+  ["hidden", "grey_dim", "bg1"],
+  ["ignored", "grey_dim", "bg1"],
+  ["unreachable", "grey", "bg1"],
+];
+
 function style(appearance: Appearance, p: Palette) {
   const dark = appearance === "dark";
   const border = dark ? p.black : p.bg4;
   const transparent = "#00000000";
-  // Zed doesn't invert selected rows like Vim's PmenuSel, and the light bg steps repeat,
-  // so interactive states are translucent overlays that read on any surface.
   const overlay = dark ? p.bg_grey : p.grey;
   const hover = alpha(overlay, "1f");
   const selected = alpha(overlay, "40");
@@ -247,29 +250,12 @@ function style(appearance: Appearance, p: Palette) {
   ];
 
   const status: Record<string, string> = {};
-  const statusColors: [string, ColorName, ColorName][] = [
-    ["error", "red", "bg_red"],
-    ["warning", "yellow", "bg_yellow"],
-    ["info", "blue", "bg_blue"],
-    ["hint", "purple", "bg_purple"],
-    ["success", "green", "bg_green"],
-    ["created", "green", "bg_green"],
-    ["modified", "blue", "bg_blue"],
-    ["deleted", "red", "bg_red"],
-    ["renamed", "cyan", "bg_blue"],
-    ["conflict", "yellow", "bg_yellow"],
-    ["predictive", "grey", "bg1"],
-    ["hidden", "grey_dim", "bg1"],
-    ["ignored", "grey_dim", "bg1"],
-    ["unreachable", "grey", "bg1"],
-  ];
-  for (const [name, fg, bg] of statusColors) {
+  for (const [name, fg, bg] of STATUS_COLORS) {
     status[name] = p[fg];
     status[`${name}.background`] = p[bg];
     status[`${name}.border`] = p[fg];
   }
 
-  // Edge's terminal palette: black/white swap between backgrounds, brights match normals.
   const termBlack = dark ? p.bg3 : p.fg;
   const termWhite = dark ? p.fg : p.bg3;
   const terminal: Record<string, string> = {};
@@ -294,7 +280,6 @@ function style(appearance: Appearance, p: Palette) {
     accents: (["blue", "purple", "green", "yellow", "red", "cyan"] as const).map((c) => p[c]),
     "background.appearance": "opaque",
 
-    // Edge keeps sidebars on the editor background and puts bars on bg1 (see its screenshots).
     background: p.bg1,
     "surface.background": p.bg0,
     "elevated_surface.background": dark ? p.bg2 : p.bg0,
@@ -370,7 +355,6 @@ function style(appearance: Appearance, p: Palette) {
     "editor.document_highlight.write_background": p.bg2,
     "editor.document_highlight.bracket_background": p.bg4,
 
-    // Zed doesn't invert text over search matches, so use the soft backgrounds.
     "search.match_background": alpha(p.filled_green, "40"),
     "search.active_match_background": alpha(p.filled_blue, "59"),
 
@@ -396,18 +380,83 @@ function style(appearance: Appearance, p: Palette) {
   };
 }
 
-const family = {
-  $schema: "https://zed.dev/schema/themes/v0.2.0.json",
-  name: "Edge",
-  author: "sainnhe (ported to Zed)",
-  themes: Object.entries(PALETTES).map(([name, [appearance, p]]) => ({
-    name,
-    appearance,
-    style: style(appearance, p),
-  })),
-};
+type Style = ReturnType<typeof style>;
 
-const out = join(dirname(fileURLToPath(import.meta.url)), "..", "themes", "edge.json");
-mkdirSync(dirname(out), { recursive: true });
-writeFileSync(out, JSON.stringify(family, null, 2) + "\n");
-console.log(`wrote ${out}`);
+function material(p: Palette, base: Style): Style {
+  return {
+    ...base,
+    background: p.bg0,
+    "title_bar.background": p.bg0,
+    "title_bar.inactive_background": p.bg0,
+    "status_bar.background": p.bg0,
+    "tab_bar.background": p.bg0,
+    "tab.inactive_background": p.bg0,
+    "tab.active_background": p.bg_blue,
+  };
+}
+
+function blur(p: Palette, base: Style): Style {
+  const clear = alpha(p.bg0, "00");
+  const tint = (color: string) => alpha(color, "dd");
+
+  const status: Record<string, string> = {};
+  for (const [name] of STATUS_COLORS) {
+    status[`${name}.background`] = tint(base[`${name}.background` as keyof Style] as string);
+  }
+
+  return {
+    ...base,
+    "background.appearance": "blurred",
+    background: tint(p.bg0),
+    "surface.background": tint(p.bg0),
+    "title_bar.background": tint(p.bg0),
+    "title_bar.inactive_background": tint(p.bg0),
+    "status_bar.background": tint(p.bg0),
+    "toolbar.background": clear,
+    "tab_bar.background": clear,
+    "tab.inactive_background": clear,
+    "tab.active_background": tint(p.bg_blue),
+    "panel.background": clear,
+    "editor.background": clear,
+    "editor.gutter.background": clear,
+    "editor.subheader.background": tint(p.bg1),
+    "editor.active_line.background": tint(p.bg1),
+    "editor.highlighted_line.background": tint(p.bg1),
+    "editor.document_highlight.read_background": tint(p.bg2),
+    "editor.document_highlight.write_background": tint(p.bg2),
+    "editor.document_highlight.bracket_background": tint(p.bg4),
+    "terminal.background": clear,
+    ...status,
+  };
+}
+
+const VARIANTS: [
+  file: string,
+  family: string,
+  suffix: string,
+  variant: (p: Palette, s: Style) => Style,
+][] = [
+  ["edge.json", "Edge", "", (_, s) => s],
+  ["edge-material.json", "Edge Material", " Material", material],
+  ["edge-blur.json", "Edge Blur", " Blur", (p, s) => blur(p, material(p, s))],
+];
+
+const themesDir = join(dirname(fileURLToPath(import.meta.url)), "themes");
+mkdirSync(themesDir, { recursive: true });
+
+for (const [file, familyName, suffix, variant] of VARIANTS) {
+  const family = {
+    $schema: "https://zed.dev/schema/themes/v0.2.0.json",
+    name: familyName,
+    author: "Alison Oliveira <arobsn@proton.me>",
+    themes: Object.entries(PALETTES).map(([name, [appearance, p]]) => ({
+      name: name + suffix,
+      appearance,
+      style: variant(p, style(appearance, p)),
+    })),
+  };
+
+  const out = join(themesDir, file);
+  writeFileSync(out, JSON.stringify(family, null, 2) + "\n");
+  console.log(`wrote ${out}`);
+}
