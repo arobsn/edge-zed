@@ -1,6 +1,6 @@
 id = "edge-theme"
-name = "Edge"
-version = "0.1.0"
+name = "Edge Theme"
+version = "0.1.1"
 schema_version = 1
 authors = ["Alison Oliveira <arobsn@proton.me>"]
 description = "Clean & Elegant Color Scheme inspired by Atom One and Material."
