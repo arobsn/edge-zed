@@ -2,6 +2,9 @@
 
 A port of [Edge](https://github.com/sainnhe/edge) to the [Zed](https://zed.dev) editor.
 
+<img width="1459" height="915" alt="Screenshot 2026-09-30 at 21 09 27" src="https://github.com/user-attachments/assets/7f485153-0491-4b5b-ab6d-89af11f41ae0" />
+
+
 ## Features
 
 - Vivid colors.
